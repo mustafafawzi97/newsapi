@@ -15,8 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user_exist['fullname'] = $row['fullname'];
                 $user_exist['email'] = $row['email'];
                 $user_exist['is_admin'] = $row['is_admin'];
-
                 echo json_encode($user_exist);
+                return http_response_code(201);
             } else {
                 $user_exist['exist'] = false;
                 echo json_encode($user_exist);
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     else {
         $ERROR =['Error' => 'BAD REQUEST!'];
         echo json_encode($ERROR);
-        return http_response_code(404);
+        return http_response_code(400);
     }
 }
 else {
