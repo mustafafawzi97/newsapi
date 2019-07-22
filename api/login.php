@@ -3,7 +3,7 @@ require '../config/connection.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_exist = [];
-    if(isset($_POST['email']) && isset($_POST['password'])) {
+    if (isset($_POST['email']) && isset($_POST['password'])) {
         $email = $_POST['email'];
         $password = $_POST['password'];
         if (!empty($email) && !empty($password)) {
@@ -27,14 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode($user_exist);
             return http_response_code(404);
         }
-    }
-    else {
-        $ERROR =['Error' => 'BAD REQUEST!'];
+    } else {
+        $ERROR = ['Error' => 'BAD REQUEST!'];
         echo json_encode($ERROR);
         return http_response_code(400);
     }
-}
-else {
+} else {
     $ERROR = ['Error' => 'you are not allowed to access to this api'];
     echo json_encode($ERROR);
     return http_response_code(401);

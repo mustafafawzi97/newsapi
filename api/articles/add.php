@@ -1,26 +1,27 @@
 <?php
-require '../config/connection.php';
+require '../../config/connection.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $operation = [];
 
-    if (isset($_POST['fullname']) && isset($_POST['email']) && isset($_POST['password']) && isset($_POST['is_admin'])) {
-        // EXTRACT DATA
+    if (isset($_POST['title']) && isset($_POST['content']) && isset($_POST['date'])) {
 
-        $fullname = $_POST['fullname'];
-        $email = $_POST['email'];
-        $password = $_POST['password'];
-        $is_admin = $_POST['is_admin'];
+        // EXTRACT DATA
+        $title = $_POST['title'];
+        $content = $_POST['content'];
+        $date = $_POST['date'];
+        $imgname = $_FILES["image"]["name"];
+        $image = file_get_contents($_FILES['image']['tmp_name']);
 
         // INSERT DATA.
-        $sql = "INSERT INTO login(`fullname`, `email`, `password`, `is_admin`) VALUES ('{$fullname}','{$email}','{$password}','{$is_admin}')";
+        $sql = "INSERT INTO articles(`title`, `content`, `date`, `image`, `imgname`) VALUES ('{$title}','{$content}','{$date}', '${image}', '${$imgname}')";
 
         if (mysqli_query($con, $sql)) {
-            $operation['register'] = "successful";
+            $operation['add'] = "successful";
             echo json_encode($operation);
             return http_response_code(201);
         } else {
-            $operation['register'] = "failed";
+            $operation['add'] = "failed";
             echo json_encode($operation);
             return http_response_code(422);
         }
