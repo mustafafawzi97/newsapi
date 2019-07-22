@@ -1,7 +1,10 @@
 <?php
-header('Access-Control-Allow-Origin: *'); 
-header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
-header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+header("Access-Control-Allow-Origin: http://localhost:4200");
+header("Access-Control-Max-Age: 1000");
+header("Access-Control-Allow-Headers: X-Requested-With, Content-Type, Origin, Authorization, Accept, Client-Security-Token, Accept-Encoding");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE, PUT");
+
+// db credentials
 $servername = "localhost";
 $username = "root";
 $password = "";

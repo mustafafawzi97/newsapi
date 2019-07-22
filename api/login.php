@@ -1,33 +1,33 @@
 <?php
 require '../config/connection.php';
 
-$user_exist = [];
-if (isset($_POST['email']) && isset($_POST['password'])) {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    if (!empty($email) && !empty($password)) {
-        $sql = "SELECT fullname, email, is_admin FROM login WHERE email = {$email} and password = {$password}";
+// Get the posted data.
+$postdata = file_get_contents("php://input");
 
-        if ($result = mysqli_query($con, $sql)) {
-            $row = mysqli_fetch_assoc($result);
-            $user_exist['exist'] = true;
-            $user_exist['fullname'] = $row['fullname'];
-            $user_exist['email'] = $row['email'];
-            $user_exist['is_admin'] = $row['is_admin'];
-            echo json_encode($user_exist);
-            return http_response_code(201);
-        } else {
-            $user_exist['exist'] = false;
-            echo json_encode($user_exist);
-            return http_response_code(404);
-        }
-    } else {
-        $user_exist['exist'] = false;
-        echo json_encode($user_exist);
-        return http_response_code(404);
+if (isset($postdata) && !empty($postdata)) {
+    // Extract the data.
+    $request = json_decode($postdata);
+
+    // Validate.
+    if (trim($request->data->email) == '' || trim($request->data->password) == '') {
+        return http_response_code(400);
     }
-} else {
-    $ERROR = ['Error' => 'BAD REQUEST!'];
-    echo json_encode($ERROR);
-    return http_response_code(400);
+
+    // Sanitize.
+    $email = mysqli_real_escape_string($con, trim($request->data->email));
+    $password = mysqli_real_escape_string($con, trim($request->data->password));
+    $sql = "SELECT id FROM login WHERE email = '$email' and password = '$password'";
+    $result = mysqli_query($con, $sql);
+    $row = mysqli_fetch_array($result,MYSQLI_ASSOC);
+    $count = mysqli_num_rows($result);
+
+    if ($count == 1) {
+        http_response_code(201);
+        $user = [
+            'exist' => true
+        ];
+        echo json_encode($user);
+    } else {
+        http_response_code(422);
+    }
 }
