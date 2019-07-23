@@ -1,28 +1,33 @@
 <?php
 require '../../config/connection.php';
 
-$operation = [];
+// Get the posted data.
+$postdata = file_get_contents("php://input");
 
-if (isset($_POST['id'])) {
+if (isset($postdata) && !empty($postdata)) {
 
-    // EXTRACT DATA
-    $id = $_POST['id'];
+    // Extract the data.
+    $request = json_decode($postdata);
+
+    // Validate.
+    if (trim($request->data->id) == '') {
+        return http_response_code(400);
+    }
+
+    // Sanitize.
+    $id =  mysqli_real_escape_string($con, trim($request->data->id));
+
 
     // INSERT DATA.
-    $sql = "DELETE FROM  articles WHERE 'id' = '${id}'";
+    $sql = "DELETE FROM articles  WHERE id ='$id'";
 
     if (mysqli_query($con, $sql)) {
-        $operation['delete'] = "successful";
-        echo json_encode($operation);
-        return http_response_code(201);
+        http_response_code(201);
+        $user = [
+            'delete' => true
+        ];
+        echo json_encode($user);
     } else {
-        echo mysqli_errno($con);
-        $operation['delete'] = "failed";
-        echo json_encode($operation);
-        return http_response_code(422);
+        http_response_code(422);
     }
-} else {
-    $ERROR = ['Error' => 'BAD REQUEST!'];
-    echo json_encode($ERROR);
-    return http_response_code(400);
 }

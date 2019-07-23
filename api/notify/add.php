@@ -1,30 +1,35 @@
 <?php
 require '../../config/connection.php';
 
-$operation = [];
+// Get the posted data.
+$postdata = file_get_contents("php://input");
 
-if (isset($_POST['title']) && isset($_POST['content']) && isset($_POST['date'])) {
+if (isset($postdata) && !empty($postdata)) {
 
-    // EXTRACT DATA
-    $title = $_POST['title'];
-    $content = $_POST['content'];
-    $date = $_POST['date'];
+    // Extract the data.
+    $request = json_decode($postdata);
+
+    // Validate.
+    if (trim($request->data->title) == '' || trim($request->data->content) == '' ||
+        trim($request->data->date) == '') {
+        return http_response_code(400);
+    }
+
+    // Sanitize.
+    $title = mysqli_real_escape_string($con, trim($request->data->title));
+    $content = mysqli_real_escape_string($con, trim($request->data->content));
+    $date = mysqli_real_escape_string($con, trim($request->data->date));
 
     // INSERT DATA.
-    $sql = "INSERT INTO notify(`title`, `content`, `date`) VALUES ('{$title}','{$content}','{$date}')";
+    $sql = "INSERT INTO notify(title, content, date) VALUES ('$title', '$content' ,'$date')";
 
     if (mysqli_query($con, $sql)) {
-        $operation['add'] = "successful";
-        echo json_encode($operation);
-        return http_response_code(201);
+        http_response_code(201);
+        $user = [
+            'add' => true
+        ];
+        echo json_encode($user);
     } else {
-        $operation['add'] = "failed";
-        echo json_encode($operation);
-        return http_response_code(422);
+        http_response_code(422);
     }
-} else {
-    $ERROR = ['Error' => 'BAD REQUEST!'];
-    echo json_encode($ERROR);
-    return http_response_code(400);
 }
-

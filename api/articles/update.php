@@ -1,33 +1,40 @@
 <?php
 require '../../config/connection.php';
 
-$operation = [];
+// Get the posted data.
+$postdata = file_get_contents("php://input");
 
-if (isset($_POST['id']) && isset($_POST['title']) && isset($_POST['content']) && isset($_POST['date'])) {
+if (isset($postdata) && !empty($postdata)) {
 
-    // EXTRACT DATA
-    $id = $_POST['id'];
-    $title = $_POST['title'];
-    $content = $_POST['content'];
-    $date = $_POST['date'];
-    $imgname = $_FILES["image"]["name"];
-    $image = file_get_contents($_FILES['image']['tmp_name']);
+    // Extract the data.
+    $request = json_decode($postdata);
+
+    // Validate.
+    if (trim($request->data->id) == '' ||
+        trim($request->data->title) == '' ||
+        trim($request->data->content) == '' ||
+        trim($request->data->date) == '') {
+        return http_response_code(400);
+    }
+
+    // Sanitize.
+    $id =  mysqli_real_escape_string($con, trim($request->data->id));
+    $title = mysqli_real_escape_string($con, trim($request->data->title));
+    $content = mysqli_real_escape_string($con, trim($request->data->content));
+    $date = mysqli_real_escape_string($con, trim($request->data->date));
+    $image = mysqli_real_escape_string($con, trim($request->data->image));
+
 
     // INSERT DATA.
-    $sql = "UPDATE articles set 'title' = '${title}', 'content' = '${content}', 'date' = '${date}', 'image'='{$image}', 'imgname'='{$imgname}' WHERE 'id' = '${id}'";
+    $sql = "UPDATE articles set title='$title', content='$content', date='$date', image='$image' WHERE id ='$id'";
 
     if (mysqli_query($con, $sql)) {
-        $operation['update'] = "successful";
-        echo json_encode($operation);
-        return http_response_code(201);
+        http_response_code(201);
+        $user = [
+            'update' => true
+        ];
+        echo json_encode($user);
     } else {
-        echo mysqli_errno($con);
-        $operation['update'] = "failed";
-        echo json_encode($operation);
-        return http_response_code(422);
+        http_response_code(422);
     }
-} else {
-    $ERROR = ['Error' => 'BAD REQUEST!'];
-    echo json_encode($ERROR);
-    return http_response_code(400);
 }
